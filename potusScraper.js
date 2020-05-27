@@ -2,7 +2,7 @@ const fs = require('fs');
 const axios = require('axios');
 const $ = require('cheerio', { decodeEntities: true });
 
-const url = 'https://www.milanuncios.com/anuncios/663370101.htm';
+const url = 'https://www.milanuncios.com/anuncios/617243433.htm';
 
 const adArray = [];
 
@@ -43,8 +43,6 @@ const axiosData = axios.get(url,{responseType: 'arraybuffer',responseEncoding: '
                 const vendor = $('.pillDiv.pillSellerTypePro', element).text();
                 const reference = $('.x5', element).text();
                 const type = $('.x3', element).text();
-                // const image = $('img', element)[0].attribs.src
-                // const numberImages = $('.mini-overlay-superior', element).text();
 
                     createAdObject.title = titleAndModel.split(' - ')[0];
                     createAdObject.cv = cv;
@@ -63,7 +61,7 @@ const axiosData = axios.get(url,{responseType: 'arraybuffer',responseEncoding: '
                     createAdObject.reference = reference.replace(/\s/g,'');
                     createAdObject.price = price.replace('€', '');
                     createAdObject.type = type;
-                    createAdObject.image = [];
+                    createAdObject.image = {imgPath:[]};
                     type == 'OFERTA' ? createAdObject.brand != 'Scooters' ? adArray.push(createAdObject)  : '' : '';
         })
     })
@@ -74,11 +72,14 @@ const axiosData = axios.get(url,{responseType: 'arraybuffer',responseEncoding: '
         const fullAdArray = adArray.map( element => {
             for(let i=1; i < averageImage; i++){
                 const image = `https://img.milanuncios.com/fg/${element.reference.slice(1,5)}/${element.reference.slice(5,7)}/${element.reference.substr(1)}_${i}.jpg`;
-                    promises.push(axios.get(image)
+                    promises.push(axios.get(image,{responseType: "stream"})
                         .then(response => {
-                            response.status == 200 ? element.image.push(image) : ''
+                            if(response.status == 200){
+                                response.data.pipe(fs.createWriteStream(`./uploads/buenanuncio-${element.reference}_${i}.jpeg`));
+                                element.image.imgPath.push(`uploads/buenanuncio-${element.reference}_${i}.jpeg`)
+                            } 
                         })
-                        .catch(error => console.log(error))
+                        .catch(error => error)
                     )
             }
             return Promise.all(promises)
@@ -86,14 +87,7 @@ const axiosData = axios.get(url,{responseType: 'arraybuffer',responseEncoding: '
         })
         return Promise.all(fullAdArray);
     })
-    .then(result => console.log(result))
+    .then(result => console.log(result) )
     .catch(error => console.log(error))
 
-    // axios({
-    //     method: "get",
-    //     url: "https://img.milanuncios.com/fg/3051/35/305135406_1.jpg",
-    //     responseType: "stream"
-    // }).then(function (response) {
-    //     response.data.pipe(fs.createWriteStream("./testDownload/testName.jpeg"));
-    // })
 
