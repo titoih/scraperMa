@@ -6,9 +6,9 @@ const url = 'https://www.milanuncios.com/anuncios/652290494.htm';
 
 const adArray = [];
 
-var axiosData = axios.get(url,{responseType: 'arraybuffer',responseEncoding: 'binary'})
+const axiosData = axios.get(url,{responseType: 'arraybuffer',responseEncoding: 'binary'})
     .then(result => {
-        const myP = $('.aditem', result.data.toString('binary')).each((i, element) => {
+        const theMap = $('.aditem', result.data.toString('binary')).map(element => {
             function checkCVinTitle (cv, model) {
                 const cvNoSpace = cv.replace(' ', '');
                 if(model){
@@ -65,34 +65,29 @@ var axiosData = axios.get(url,{responseType: 'arraybuffer',responseEncoding: 'bi
                     createAdObject.type = type;
                     createAdObject.image = [];
                     // function generate array images
-                        let promises = [];
+                        let promises = []
                         const averageImage = 5;
                         for(let i=1; i < averageImage; i++){
                             const image = `https://img.milanuncios.com/fg/${createAdObject.reference.slice(1,5)}/${createAdObject.reference.slice(5,7)}/${createAdObject.reference.substr(1)}_${i}.jpg`;
-                            promises.push(axios.get(image)
-                                .then(response => {
-                                    // response.status == 200 ? createAdObject.image.push(image) : console.log('something wrong with images')
-                                    response.status == 200 ? createAdObject.image.push(image) : ''
+                                promises.push(axios.get(image)
+                                    .then(response => {
+                                        response.status == 200 ? createAdObject.image.push(image) : ''
                                     })
-                                .catch(error => console.log())
-                            )
+                                    .catch(error => console.log())
+                                )
                         }
                         return Promise.all(promises)
                         .then(() => {
                             type == 'OFERTA' ? createAdObject.brand != 'Scooters' ? adArray.push(createAdObject)  : '' : '';
-                            console.log('hey3')
                         })
-                        .catch(error => console.log(error))
         })
-        return Promise.all([myP])
-        .then(() => console.log('hey2'))
+        Promise.all([theMap])
+        .then(console.log(adArray))
     })
-    return Promise.all([axiosData])
-    .then(() => console.log('hey'))
+    Promise.all([axiosData])
+    .then(() => console.log(adArray))
     .catch(error => console.log(error))
 
-    
-    // 305135406
     // axios({
     //     method: "get",
     //     url: "https://img.milanuncios.com/fg/3051/35/305135406_1.jpg",
@@ -100,18 +95,4 @@ var axiosData = axios.get(url,{responseType: 'arraybuffer',responseEncoding: 'bi
     // }).then(function (response) {
     //     response.data.pipe(fs.createWriteStream("./testDownload/testName.jpeg"));
     // })
-// const t = axios.get('https://img.milanuncios.com/fg/3229/82/322982571_1.jpg')
-//     .then (result => {return 'hey'})
-//     .catch (error => console.log(error))
-
-//     return Promise.all([u, t]).then(function(values) {
-//         console.log(values);
-//       });
-
-// return Promise.all([axiosData])
-// .then(after => {
-//     console.log(adArray)
-//     return adArray
-// })
-
 
