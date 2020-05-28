@@ -2,7 +2,7 @@ const fs = require('fs');
 const axios = require('axios');
 const $ = require('cheerio', { decodeEntities: true });
 
-const url = 'https://www.milanuncios.com/anuncios/652290494.htm';
+const url = 'https://www.milanuncios.com/coches-de-segunda-mano/690603462.htm';
 
 const adArray = [];
 
@@ -34,7 +34,7 @@ const axiosData = axios.get(url,{responseType: 'arraybuffer',responseEncoding: '
                 createAdObject.name = 'Masauto';
                 createAdObject.email = 'info@masautotenerife.com';
                 createAdObject.renovate = Date();
-                createAdObject.phone = `652290494`;
+                createAdObject.phone = `677314856`;
                 createAdObject.ip = `::1`;
                 createAdObject.ua = `localhost`;
                 createAdObject.co = `localhost`;
@@ -68,6 +68,7 @@ const axiosData = axios.get(url,{responseType: 'arraybuffer',responseEncoding: '
                     createAdObject.price = price ? parseInt(price.replace(/[\.,€]/, '')) : null;
                     createAdObject.doors = doors.replace(' puertas', '');
                     createAdObject.description = description.replace('\n', ' ');
+                    createAdObject.description = createAdObject.description.replace(' ... Leer más', '')
                     createAdObject.vendorType = vendorType ? vendorType : 'Particular';
                     createAdObject.maReference = maReference.replace(/\s/g,'');
                     createAdObject.vendor = vendor;
